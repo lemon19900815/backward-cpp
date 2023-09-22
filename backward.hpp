@@ -92,6 +92,7 @@
 #include <vector>
 #include <exception>
 #include <iterator>
+#include <chrono>
 
 #if defined(BACKWARD_SYSTEM_LINUX)
 
@@ -4474,7 +4475,32 @@ private:
     st.skip_n_firsts(skip_frames);
 
     printer.address = true;
-    printer.print(st, std::cerr);
+    //printer.print(st, std::cerr);
+
+    // crash dump to file.
+    auto prefix = time_to_string(std::chrono::system_clock::now(),
+                                 "%Y%m%d-%H%M%S");
+    auto dump_file = prefix + ".coredump";
+
+    std::ofstream stream(dump_file.c_str(), std::ofstream::out);
+    if (stream.is_open()) {
+      printer.print(st, stream);
+      stream.close();
+    } else {
+      printer.print(st, std::cerr);
+    }
+  }
+
+  static std::string time_to_string(std::chrono::system_clock::time_point tp,
+                                    std::string fmt = "%Y-%m-%d %H:%M:%S") {
+    std::time_t t = std::chrono::system_clock::to_time_t(tp);
+
+    auto stm = std::localtime(&t);
+
+    std::ostringstream ostr;
+    ostr << std::put_time(stm, fmt.c_str());
+
+    return ostr.str();
   }
 };
 
