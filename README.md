@@ -237,8 +237,10 @@ You can use it like this:
 
 ```c++
 using namespace backward;
-StackTrace st; st.load_here(32);
-Printer p; p.print(st);
+Printer p; // must before StackTrace or define a TraceResolver instance before StackTrace
+StackTrace st;
+st.load_here(32);
+p.print(st);
 ```
 
 The public methods are:
@@ -276,9 +278,9 @@ You can use it like this:
 
 ```c++
 using namespace backward;
+TraceResolver tr;
 StackTrace st; st.load_here(32);
-
-TraceResolver tr; tr.load_stacktrace(st);
+tr.load_stacktrace(st);
 for (size_t i = 0; i < st.size(); ++i) {
 	ResolvedTrace trace = tr.resolve(st[i]);
 	std::cout << "#" << i
@@ -338,8 +340,10 @@ automatically resolve the traces for you:
 
 ```c++
 using namespace backward;
-StackTrace st; st.load_here(32);
-Printer p;
+Printer p; // must before StackTrace
+StackTrace st;
+st.load_here(32);
+
 p.object = true;
 p.color_mode = ColorMode::always;
 p.address = true;
